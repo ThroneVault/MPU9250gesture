@@ -4,6 +4,12 @@ from mpu9250 import MPU9250
 
 mpu9250 = MPU9250()
 
+if mpu9250.is_connected() == False:
+    print "No I2C Connection!"
+    sys.exit()
+else:
+    print "Device connected"
+    
 try:
     while True:
         accel = mpu9250.read_accel()
