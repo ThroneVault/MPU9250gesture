@@ -46,7 +46,7 @@ class MPU9250:
         time.sleep(0.1)
 
         bus.write_byte_data(self.address, CONFIG, 0x03)
-        bus.write_byte_data(self.address, SMPLRT_DIV, 0x04)
+        bus.write_byte_data(self.address, SMPLRT_DIV, 0x09)
         bus.write_byte_data(self.address, GYRO_CONFIG, gyro_range << 3)
         bus.write_byte_data(self.address, ACCEL_CONFIG, accel_range << 3)
         bus.write_byte_data(self.address, ACCEL_CONFIG_2, 0x03)
