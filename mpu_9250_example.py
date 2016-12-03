@@ -5,6 +5,7 @@ import thread
 from mpu9250 import MPU9250
 import Queue
 import socket
+import Adafruit_BBIO.GPIO as GPIO
 
 gestureQueue = Queue.Queue(10)
 
@@ -20,6 +21,7 @@ else:
 
 def detect_gesture(thread_name):
     try:
+        GPIO.setup("P8_12", GPIO.IN)
         print thread_name
         while True:
             accel = mpu9250.read_accel()
@@ -55,22 +57,28 @@ def detect_gesture(thread_name):
             elif (ax <= 0.150 and ax >= -0.020) and (ay <= 0.120 and ay >= -0.020) and (az >= 1.200):
                 detect = 1
                 print "Detect vertical up"
-                #gestureQueue.put("volup")
                 gestureQueue.put("volup 5")
                 print " ax = " , ax
                 print " ay = " , ay
                 print " az = " , az
                 time.sleep(2)
             
-            elif (gy > 100 and ax <0):
+            elif (gy > 100 and ax < 0):
                 detect = 1
                 print "Left Tilt"
+                gestureQueue.put("prev")
                 time.sleep(2)
 
             elif (gy > 100 and ax > 0):
                 detect = 1
                 print "Right Tilt"
+                gestureQueue.put("next")
                 time.sleep(2)
+
+            if GPIO.input("P8_12") == 1:
+                detect = 1
+                print "Pause"
+                gestureQueue.put("pause")
 
             if detect:
 				print "Timeout over"
@@ -78,25 +86,6 @@ def detect_gesture(thread_name):
 
     except KeyboardInterrupt:
         sys.exit()
-
-'''
-gyro = mpu9250.read_gyro()
-gx = 0
-gy = 0
-gz = 0
-count = 0
-while count < num_samples:
-gx = gx + gyro['x']
-gy = gy + gyro['y']
-gz = gz + gyro['z']
-count = count + 1
-gx = gx / num_samples
-gy = gy / num_samples
-gz = gz / num_samples
-print " gx = " , gx 
-print " gy = " , gy 
-print " gz = " , gz 
-'''
 
 def send_to_laptop(thread_name):
     TCP_IP = '192.168.0.13'
@@ -109,13 +98,14 @@ def send_to_laptop(thread_name):
     time.sleep(0.1)
     s.send("enqueue VID_2.mp4\n")
     time.sleep(0.1)
+    s.send("enqueue VID_3.mp4\n")
+    time.sleep(0.1)
     s.send("play\n")
 
     while True:
         gesture = gestureQueue.get() + "\n"
         print gesture
         s.send(gesture)
-
     s.close()
 
 try:
