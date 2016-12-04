@@ -88,7 +88,7 @@ def detect_gesture(thread_name):
         sys.exit()
 
 def send_to_laptop(thread_name):
-    TCP_IP = '192.168.0.13'
+    TCP_IP = sys.argv[1]
     TCP_PORT = 50000
     BUFFER_SIZE = 1024
  
